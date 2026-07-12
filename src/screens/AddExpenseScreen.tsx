@@ -32,6 +32,17 @@ export default function AddExpenseScreen({ navigation }: Props) {
           <Text style={styles.optionSubtitle}>Just an amount and category</Text>
         </View>
       </Pressable>
+
+      <Pressable
+        style={styles.option}
+        onPress={() => navigation.navigate("StatementImport")}
+      >
+        <Text style={styles.optionIcon}>📄</Text>
+        <View>
+          <Text style={styles.optionTitle}>Upload statement</Text>
+          <Text style={styles.optionSubtitle}>Import from a bank or UPI statement</Text>
+        </View>
+      </Pressable>
     </View>
   );
 }

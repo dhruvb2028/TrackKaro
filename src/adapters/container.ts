@@ -4,6 +4,7 @@ import { MockAuthProvider } from "./mock/MockAuthProvider";
 import { LocalFileStorage } from "./mock/LocalFileStorage";
 import { MockAIExtractor } from "./mock/MockAIExtractor";
 import { LocalRateLimiter } from "./mock/LocalRateLimiter";
+import { MockStatementParser } from "./mock/MockStatementParser";
 
 /**
  * Single place where ports are bound to their current implementations.
@@ -17,4 +18,5 @@ export const container = {
   fileStorage: new LocalFileStorage(),
   aiExtractor: new MockAIExtractor(),
   rateLimiter: new LocalRateLimiter(),
+  statementParser: new MockStatementParser(),
 };

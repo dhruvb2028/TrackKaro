@@ -6,6 +6,7 @@ import AddExpenseScreen from "../screens/AddExpenseScreen";
 import PhotoCaptureScreen from "../screens/PhotoCaptureScreen";
 import ManualQuickAddScreen from "../screens/ManualQuickAddScreen";
 import SpendSummaryScreen from "../screens/SpendSummaryScreen";
+import StatementImportScreen from "../screens/StatementImportScreen";
 import { colors } from "../theme";
 
 export type RootStackParamList = {
@@ -14,6 +15,7 @@ export type RootStackParamList = {
   PhotoCapture: undefined;
   ManualQuickAdd: undefined;
   SpendSummary: undefined;
+  StatementImport: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -58,6 +60,11 @@ export default function RootNavigator() {
         <Stack.Screen
           name="ManualQuickAdd"
           component={ManualQuickAddScreen}
+          options={{ presentation: "modal" }}
+        />
+        <Stack.Screen
+          name="StatementImport"
+          component={StatementImportScreen}
           options={{ presentation: "modal" }}
         />
       </Stack.Navigator>
