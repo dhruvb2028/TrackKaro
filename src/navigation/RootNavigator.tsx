@@ -9,6 +9,8 @@ import SpendSummaryScreen from "../screens/SpendSummaryScreen";
 import StatementImportScreen from "../screens/StatementImportScreen";
 import ExpenseDetailScreen from "../screens/ExpenseDetailScreen";
 import PayScreen from "../screens/PayScreen";
+import SignUpScreen from "../screens/SignUpScreen";
+import SettingsScreen from "../screens/SettingsScreen";
 import { colors } from "../theme";
 
 export type RootStackParamList = {
@@ -20,6 +22,8 @@ export type RootStackParamList = {
   StatementImport: undefined;
   ExpenseDetail: { expenseId: string };
   Pay: undefined;
+  SignUp: undefined;
+  Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -85,6 +89,21 @@ export default function RootNavigator() {
           name="Pay"
           component={PayScreen}
           options={{ presentation: "modal" }}
+        />
+        <Stack.Screen
+          name="SignUp"
+          component={SignUpScreen}
+          options={{ presentation: "modal" }}
+        />
+        <Stack.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            headerShown: true,
+            title: "Settings",
+            headerStyle: { backgroundColor: colors.background },
+            headerTintColor: colors.textPrimary,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -14,6 +14,7 @@ import { container } from "../adapters/container";
 import { getGuestUserId } from "../domain/identity";
 import { CATEGORY_LABELS, ALL_CATEGORIES } from "../domain/categoryLabels";
 import { setExpenseCategory } from "../domain/addExpense";
+import { prefs } from "../domain/prefs";
 import { colors, spacing, radius } from "../theme";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
@@ -23,13 +24,26 @@ export default function ExpenseListScreen({ navigation }: Props) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [categoryPickerFor, setCategoryPickerFor] = useState<Expense | null>(null);
+  const [showNudge, setShowNudge] = useState(false);
 
   const load = useCallback(async () => {
     const uid = await getGuestUserId();
     setUserId(uid);
     const list = await container.expenseRepository.listForUser(uid);
     setExpenses(list);
+
+    // Soft sign-up nudge: only after the first expense, once, non-blocking (§4.4).
+    const [dismissed, signedUp] = await Promise.all([
+      prefs.isSignupNudgeDismissed(),
+      prefs.isSignedUp(),
+    ]);
+    setShowNudge(list.length > 0 && !dismissed && !signedUp);
   }, []);
+
+  const dismissNudge = async () => {
+    setShowNudge(false);
+    await prefs.dismissSignupNudge();
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -55,10 +69,27 @@ export default function ExpenseListScreen({ navigation }: Props) {
           <Text style={styles.headerLabel}>This month ›</Text>
           <Text style={styles.headerAmount}>₹{monthTotal.toFixed(0)}</Text>
         </Pressable>
-        <Pressable style={styles.payButton} onPress={() => navigation.navigate("Pay")}>
-          <Text style={styles.payButtonText}>Pay</Text>
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable style={styles.payButton} onPress={() => navigation.navigate("Pay")}>
+            <Text style={styles.payButtonText}>Pay</Text>
+          </Pressable>
+          <Pressable style={styles.settingsButton} onPress={() => navigation.navigate("Settings")}>
+            <Text style={styles.settingsIcon}>⚙︎</Text>
+          </Pressable>
+        </View>
       </View>
+
+      {showNudge && (
+        <Pressable style={styles.nudge} onPress={() => navigation.navigate("SignUp")}>
+          <View style={styles.nudgeText}>
+            <Text style={styles.nudgeTitle}>Back up your data</Text>
+            <Text style={styles.nudgeSubtitle}>Sign up to keep it safe on any device.</Text>
+          </View>
+          <Pressable hitSlop={8} onPress={dismissNudge}>
+            <Text style={styles.nudgeClose}>✕</Text>
+          </Pressable>
+        </Pressable>
+      )}
 
       {expenses.length === 0 ? (
         <View style={styles.emptyState}>
@@ -137,6 +168,7 @@ const styles = StyleSheet.create({
   },
   header: { padding: spacing.lg, paddingTop: Platform.OS === "ios" ? spacing.xl : spacing.lg },
   headerLabel: { color: colors.textSecondary, fontSize: 14 },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   payButton: {
     backgroundColor: colors.surfaceRaised,
     borderRadius: radius.pill,
@@ -144,6 +176,29 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   payButtonText: { color: colors.accent, fontWeight: "700", fontSize: 15 },
+  settingsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  settingsIcon: { color: colors.textSecondary, fontSize: 18 },
+  nudge: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  nudgeText: { flex: 1 },
+  nudgeTitle: { color: colors.textPrimary, fontSize: 15, fontWeight: "700" },
+  nudgeSubtitle: { color: colors.textSecondary, fontSize: 13, marginTop: 2 },
+  nudgeClose: { color: colors.textSecondary, fontSize: 16, paddingLeft: spacing.md },
   headerAmount: { color: colors.textPrimary, fontSize: 40, fontWeight: "700", marginTop: 4 },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.lg },
   emptyTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: "600" },
