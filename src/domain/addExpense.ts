@@ -56,6 +56,44 @@ export async function addExpense(input: AddExpenseInput): Promise<Expense> {
   return container.expenseRepository.create(expense);
 }
 
+export interface ExpenseEdits {
+  amount: number;
+  merchant: string | null;
+  category: ExpenseCategory;
+  note: string | null;
+  date: string;
+}
+
+export async function updateExpense(
+  expense: Expense,
+  edits: ExpenseEdits
+): Promise<Expense> {
+  const categoryChanged = edits.category !== expense.category;
+  const updated: Expense = {
+    ...expense,
+    amount: edits.amount,
+    merchant: edits.merchant,
+    category: edits.category,
+    categoryConfidence: categoryChanged ? "user" : expense.categoryConfidence,
+    note: edits.note,
+    date: edits.date,
+    updatedAt: new Date().toISOString(),
+  };
+  await container.expenseRepository.update(updated);
+
+  // A manual category change teaches the per-user override for next time.
+  if (categoryChanged && edits.merchant) {
+    const key = edits.merchant.toLowerCase().replace(/[^a-z0-9]/g, "");
+    await container.categoryOverrideRepository.set(expense.userId, key, edits.category);
+  }
+
+  return updated;
+}
+
+export async function deleteExpense(expense: Expense): Promise<void> {
+  await container.expenseRepository.delete(expense.id, expense.userId);
+}
+
 export async function setExpenseCategory(
   expense: Expense,
   category: ExpenseCategory

@@ -7,6 +7,7 @@ import PhotoCaptureScreen from "../screens/PhotoCaptureScreen";
 import ManualQuickAddScreen from "../screens/ManualQuickAddScreen";
 import SpendSummaryScreen from "../screens/SpendSummaryScreen";
 import StatementImportScreen from "../screens/StatementImportScreen";
+import ExpenseDetailScreen from "../screens/ExpenseDetailScreen";
 import { colors } from "../theme";
 
 export type RootStackParamList = {
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   ManualQuickAdd: undefined;
   SpendSummary: undefined;
   StatementImport: undefined;
+  ExpenseDetail: { expenseId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -66,6 +68,16 @@ export default function RootNavigator() {
           name="StatementImport"
           component={StatementImportScreen}
           options={{ presentation: "modal" }}
+        />
+        <Stack.Screen
+          name="ExpenseDetail"
+          component={ExpenseDetailScreen}
+          options={{
+            headerShown: true,
+            title: "Edit expense",
+            headerStyle: { backgroundColor: colors.background },
+            headerTintColor: colors.textPrimary,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

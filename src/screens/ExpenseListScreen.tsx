@@ -69,10 +69,13 @@ export default function ExpenseListScreen({ navigation }: Props) {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <View style={styles.row}>
-              <View style={styles.rowLeft}>
+              <Pressable
+                style={styles.rowLeft}
+                onPress={() => navigation.navigate("ExpenseDetail", { expenseId: item.id })}
+              >
                 <Text style={styles.merchant}>{item.merchant ?? "Expense"}</Text>
                 <Text style={styles.date}>{item.date}</Text>
-              </View>
+              </Pressable>
               <View style={styles.rowRight}>
                 <Text style={styles.amount}>₹{item.amount.toFixed(0)}</Text>
                 <Pressable
