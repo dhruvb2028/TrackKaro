@@ -5,6 +5,7 @@ import ExpenseListScreen from "../screens/ExpenseListScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
 import PhotoCaptureScreen from "../screens/PhotoCaptureScreen";
 import ManualQuickAddScreen from "../screens/ManualQuickAddScreen";
+import SpendSummaryScreen from "../screens/SpendSummaryScreen";
 import { colors } from "../theme";
 
 export type RootStackParamList = {
@@ -12,6 +13,7 @@ export type RootStackParamList = {
   AddExpense: undefined;
   PhotoCapture: undefined;
   ManualQuickAdd: undefined;
+  SpendSummary: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -33,6 +35,16 @@ export default function RootNavigator() {
     <NavigationContainer theme={navTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="ExpenseList" component={ExpenseListScreen} />
+        <Stack.Screen
+          name="SpendSummary"
+          component={SpendSummaryScreen}
+          options={{
+            headerShown: true,
+            title: "Spending",
+            headerStyle: { backgroundColor: colors.background },
+            headerTintColor: colors.textPrimary,
+          }}
+        />
         <Stack.Screen
           name="AddExpense"
           component={AddExpenseScreen}

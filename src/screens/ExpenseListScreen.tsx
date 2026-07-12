@@ -50,10 +50,10 @@ export default function ExpenseListScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerLabel}>This month</Text>
+      <Pressable style={styles.header} onPress={() => navigation.navigate("SpendSummary")}>
+        <Text style={styles.headerLabel}>This month ›</Text>
         <Text style={styles.headerAmount}>₹{monthTotal.toFixed(0)}</Text>
-      </View>
+      </Pressable>
 
       {expenses.length === 0 ? (
         <View style={styles.emptyState}>
