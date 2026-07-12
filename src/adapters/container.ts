@@ -5,6 +5,7 @@ import { LocalFileStorage } from "./mock/LocalFileStorage";
 import { MockAIExtractor } from "./mock/MockAIExtractor";
 import { LocalRateLimiter } from "./mock/LocalRateLimiter";
 import { MockStatementParser } from "./mock/MockStatementParser";
+import { LocalPayeeRepository } from "./mock/LocalPayeeRepository";
 
 /**
  * Single place where ports are bound to their current implementations.
@@ -14,6 +15,7 @@ import { MockStatementParser } from "./mock/MockStatementParser";
 export const container = {
   expenseRepository: new LocalExpenseRepository(),
   categoryOverrideRepository: new LocalCategoryOverrideRepository(),
+  payeeRepository: new LocalPayeeRepository(),
   authProvider: new MockAuthProvider(),
   fileStorage: new LocalFileStorage(),
   aiExtractor: new MockAIExtractor(),

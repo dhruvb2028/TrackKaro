@@ -50,10 +50,15 @@ export default function ExpenseListScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.header} onPress={() => navigation.navigate("SpendSummary")}>
-        <Text style={styles.headerLabel}>This month ›</Text>
-        <Text style={styles.headerAmount}>₹{monthTotal.toFixed(0)}</Text>
-      </Pressable>
+      <View style={styles.headerBar}>
+        <Pressable style={styles.header} onPress={() => navigation.navigate("SpendSummary")}>
+          <Text style={styles.headerLabel}>This month ›</Text>
+          <Text style={styles.headerAmount}>₹{monthTotal.toFixed(0)}</Text>
+        </Pressable>
+        <Pressable style={styles.payButton} onPress={() => navigation.navigate("Pay")}>
+          <Text style={styles.payButtonText}>Pay</Text>
+        </Pressable>
+      </View>
 
       {expenses.length === 0 ? (
         <View style={styles.emptyState}>
@@ -124,8 +129,21 @@ export default function ExpenseListScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  headerBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingRight: spacing.lg,
+  },
   header: { padding: spacing.lg, paddingTop: Platform.OS === "ios" ? spacing.xl : spacing.lg },
   headerLabel: { color: colors.textSecondary, fontSize: 14 },
+  payButton: {
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  payButtonText: { color: colors.accent, fontWeight: "700", fontSize: 15 },
   headerAmount: { color: colors.textPrimary, fontSize: 40, fontWeight: "700", marginTop: 4 },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.lg },
   emptyTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: "600" },
