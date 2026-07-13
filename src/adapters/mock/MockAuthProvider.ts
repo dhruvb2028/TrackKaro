@@ -2,29 +2,29 @@ import * as Crypto from "expo-crypto";
 import { AuthProvider, AuthSession } from "../../ports/AuthProvider";
 
 /**
- * Local stand-in for a real OTP vendor (MSG91/Twilio/Firebase Auth, etc).
- * The OTP is fixed and logged instead of sent over SMS, so the rest of the
- * app can be built without a live vendor account. Swap for a real
- * AuthProvider implementation later without touching any calling code.
+ * Local stand-in for a real email-OTP vendor. The OTP is fixed and logged
+ * instead of sent over email, so the rest of the app can be built without
+ * a live vendor account. Swap for a real AuthProvider implementation later
+ * without touching any calling code.
  */
 export class MockAuthProvider implements AuthProvider {
   private static readonly FIXED_OTP = "000000";
-  private pendingPhones = new Set<string>();
+  private pendingEmails = new Set<string>();
 
-  async sendOtp(phoneNumber: string): Promise<void> {
-    this.pendingPhones.add(phoneNumber);
-    console.log(`[MockAuthProvider] OTP for ${phoneNumber}: ${MockAuthProvider.FIXED_OTP}`);
+  async sendOtp(email: string): Promise<void> {
+    this.pendingEmails.add(email);
+    console.log(`[MockAuthProvider] OTP for ${email}: ${MockAuthProvider.FIXED_OTP}`);
   }
 
-  async verifyOtp(phoneNumber: string, code: string): Promise<AuthSession> {
-    if (!this.pendingPhones.has(phoneNumber)) {
-      throw new Error("No OTP was requested for this phone number.");
+  async verifyOtp(email: string, code: string): Promise<AuthSession> {
+    if (!this.pendingEmails.has(email)) {
+      throw new Error("No OTP was requested for this email address.");
     }
     if (code !== MockAuthProvider.FIXED_OTP) {
       throw new Error("Incorrect code.");
     }
-    this.pendingPhones.delete(phoneNumber);
-    const userId = await hash(phoneNumber);
+    this.pendingEmails.delete(email);
+    const userId = await hash(email);
     return {
       userId,
       accessToken: await randomToken(),

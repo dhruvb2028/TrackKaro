@@ -36,7 +36,7 @@ export default function SettingsScreen({ navigation }: Props) {
         <Pressable style={styles.card} onPress={() => navigation.navigate("SignUp")}>
           <Text style={styles.cardTitle}>Back up your data</Text>
           <Text style={styles.cardSubtitle}>
-            Sign up with your phone number to keep your data safe.
+            Sign up with your email to keep your data safe.
           </Text>
         </Pressable>
       )}

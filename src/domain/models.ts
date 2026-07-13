@@ -42,7 +42,7 @@ export interface CategoryOverride {
 
 export interface User {
   id: string;
-  phoneNumber: string | null;
+  email: string | null;
   createdAt: string;
 }
 

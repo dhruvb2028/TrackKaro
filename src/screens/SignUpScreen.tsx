@@ -16,12 +16,14 @@ import { prefs } from "../domain/prefs";
 import { getGuestUserId } from "../domain/identity";
 import { migrateGuestData } from "../domain/migrateGuestData";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 type Props = NativeStackScreenProps<RootStackParamList, "SignUp">;
-type Stage = "phone" | "otp" | "working";
+type Stage = "email" | "otp" | "working";
 
 export default function SignUpScreen({ navigation }: Props) {
-  const [stage, setStage] = useState<Stage>("phone");
-  const [phone, setPhone] = useState("");
+  const [stage, setStage] = useState<Stage>("email");
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -29,11 +31,11 @@ export default function SignUpScreen({ navigation }: Props) {
     setError(null);
     setStage("working");
     try {
-      await container.authProvider.sendOtp(phone.trim());
+      await container.authProvider.sendOtp(email.trim());
       setStage("otp");
     } catch (e: any) {
       setError(e?.message ?? "Couldn't send the code.");
-      setStage("phone");
+      setStage("email");
     }
   };
 
@@ -42,7 +44,7 @@ export default function SignUpScreen({ navigation }: Props) {
     setStage("working");
     try {
       const guestUserId = await getGuestUserId();
-      const session = await container.authProvider.verifyOtp(phone.trim(), code.trim());
+      const session = await container.authProvider.verifyOtp(email.trim(), code.trim());
       // Only a real backend has a distinct account to migrate into — with
       // the mock provider, "signed up" is still the same local storage
       // under the same guest id, so there's nothing to move.
@@ -72,22 +74,24 @@ export default function SignUpScreen({ navigation }: Props) {
         Sign up so your expenses are safe and available on any device.
       </Text>
 
-      {stage === "phone" ? (
+      {stage === "email" ? (
         <>
-          <Text style={styles.label}>Phone number</Text>
+          <Text style={styles.label}>Email address</Text>
           <TextInput
             style={styles.input}
-            keyboardType="phone-pad"
-            placeholder="9876543210"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="you@example.com"
             placeholderTextColor={colors.textSecondary}
-            value={phone}
-            onChangeText={setPhone}
+            value={email}
+            onChangeText={setEmail}
             autoFocus
           />
           {error && <Text style={styles.error}>{error}</Text>}
           <Pressable
-            style={[styles.button, phone.trim().length < 10 && styles.buttonDisabled]}
-            disabled={phone.trim().length < 10}
+            style={[styles.button, !EMAIL_PATTERN.test(email.trim()) && styles.buttonDisabled]}
+            disabled={!EMAIL_PATTERN.test(email.trim())}
             onPress={sendOtp}
           >
             <Text style={styles.buttonText}>Send code</Text>

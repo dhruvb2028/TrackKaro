@@ -2,21 +2,23 @@ import { AuthProvider, AuthSession } from "../../ports/AuthProvider";
 import { getSupabase } from "./supabaseClient";
 
 /**
- * Real phone+OTP auth via Supabase. Requires an SMS provider (Twilio,
- * MessageBird, etc.) configured under Authentication > Providers > Phone
- * in the Supabase dashboard — Supabase does not send SMS itself.
+ * Real email+OTP auth via Supabase. signInWithOtp({ email }) sends a
+ * one-time 6-digit code (and a magic link) using Supabase's built-in email
+ * sending — no separate vendor account needed, unlike phone/SMS. Also
+ * creates the account on first use (shouldCreateUser defaults to true),
+ * so this one call covers both sign-in and sign-up.
  */
 export class SupabaseAuthProvider implements AuthProvider {
-  async sendOtp(phoneNumber: string): Promise<void> {
-    const { error } = await getSupabase().auth.signInWithOtp({ phone: phoneNumber });
+  async sendOtp(email: string): Promise<void> {
+    const { error } = await getSupabase().auth.signInWithOtp({ email });
     if (error) throw error;
   }
 
-  async verifyOtp(phoneNumber: string, code: string): Promise<AuthSession> {
+  async verifyOtp(email: string, code: string): Promise<AuthSession> {
     const { data, error } = await getSupabase().auth.verifyOtp({
-      phone: phoneNumber,
+      email,
       token: code,
-      type: "sms",
+      type: "email",
     });
     if (error) throw error;
     if (!data.session || !data.user) throw new Error("Verification did not return a session.");
