@@ -3,6 +3,7 @@ import {
   View,
   Text,
   Pressable,
+  TextInput,
   StyleSheet,
   ActivityIndicator,
   ScrollView,
@@ -18,7 +19,7 @@ import { addExpense } from "../domain/addExpense";
 import { categorize } from "../domain/categorize";
 
 type Props = NativeStackScreenProps<RootStackParamList, "StatementImport">;
-type Stage = "idle" | "picking" | "parsing" | "summary";
+type Stage = "idle" | "picking" | "password" | "parsing" | "summary";
 
 interface PickedFile {
   uri: string;
@@ -28,6 +29,9 @@ interface PickedFile {
 
 export default function StatementImportScreen({ navigation }: Props) {
   const [stage, setStage] = useState<Stage>("idle");
+  const [file, setFile] = useState<PickedFile | null>(null);
+  const [password, setPassword] = useState("");
+  const [triedWrongPassword, setTriedWrongPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<ImportSummary | null>(null);
   const [reviewQueue, setReviewQueue] = useState<ReviewItem[]>([]);
@@ -36,9 +40,7 @@ export default function StatementImportScreen({ navigation }: Props) {
     setError(null);
     setStage("picking");
     const result = await DocumentPicker.getDocumentAsync({
-      // PDF deliberately excluded — RealStatementParser doesn't support it
-      // yet (see its doc comment), so don't invite a pick that can only fail.
-      type: ["text/csv", "text/comma-separated-values",
+      type: ["application/pdf", "text/csv", "text/comma-separated-values",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
       copyToCacheDirectory: true,
     });
@@ -47,28 +49,35 @@ export default function StatementImportScreen({ navigation }: Props) {
       return;
     }
     const asset = result.assets[0];
-    await runParse({
+    const picked: PickedFile = {
       uri: asset.uri,
       name: asset.name,
       mimeType: asset.mimeType ?? null,
-    });
+    };
+    setFile(picked);
+    await runParse(picked);
   };
 
-  const runParse = async (picked: PickedFile) => {
+  const runParse = async (picked: PickedFile, pwd?: string) => {
     setStage("parsing");
     setError(null);
-    const parseResult = await container.statementParser.parse(picked.uri, picked.mimeType, picked.name);
+    const parseResult = await container.statementParser.parse(
+      picked.uri,
+      picked.mimeType,
+      picked.name,
+      pwd
+    );
 
-    // No adapter currently returns "password_required" (real PDF parsing
-    // isn't implemented — see RealStatementParser), but the port allows for
-    // one that does; treat it the same as "unsupported" rather than getting
-    // stuck with no way forward for the user.
-    if (parseResult.status === "unsupported" || parseResult.status === "password_required") {
-      setError(
-        parseResult.status === "unsupported"
-          ? parseResult.reason
-          : "This file needs a password we can't ask for yet — try a CSV or Excel export instead."
-      );
+    if (parseResult.status === "password_required") {
+      // A pwd that was already tried and still comes back password_required
+      // means it was wrong — a first attempt with no pwd yet just means the
+      // file is protected.
+      setTriedWrongPassword(pwd !== undefined);
+      setStage("password");
+      return;
+    }
+    if (parseResult.status === "unsupported") {
+      setError(parseResult.reason);
       setStage("idle");
       return;
     }
@@ -107,6 +116,37 @@ export default function StatementImportScreen({ navigation }: Props) {
         <Text style={styles.processingText}>
           {stage === "picking" ? "Opening files…" : "Reading your statement…"}
         </Text>
+      </View>
+    );
+  }
+
+  if (stage === "password") {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Statement is password-protected</Text>
+        <Text style={styles.subtitle}>
+          Enter your bank statement password to continue.
+        </Text>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Statement password"
+          placeholderTextColor={colors.textSecondary}
+          secureTextEntry
+          value={password}
+          onChangeText={(t) => {
+            setPassword(t);
+            setTriedWrongPassword(false);
+          }}
+          autoFocus
+        />
+        {triedWrongPassword && <Text style={styles.error}>That password didn't work.</Text>}
+        <Pressable
+          style={[styles.primaryButton, !password && styles.buttonDisabled]}
+          disabled={!password}
+          onPress={() => file && runParse(file, password)}
+        >
+          <Text style={styles.primaryButtonText}>Unlock</Text>
+        </Pressable>
       </View>
     );
   }
@@ -162,7 +202,7 @@ export default function StatementImportScreen({ navigation }: Props) {
     <View style={styles.container}>
       <Text style={styles.title}>Upload a statement</Text>
       <Text style={styles.subtitle}>
-        CSV or Excel from your bank or UPI app. We'll add the transactions for you.
+        PDF, CSV or Excel from your bank or UPI app. We'll add the transactions for you.
       </Text>
       {error && <Text style={styles.error}>{error}</Text>}
       <Pressable style={styles.primaryButton} onPress={pickFile}>
@@ -209,6 +249,14 @@ const styles = StyleSheet.create({
   },
   keepButtonText: { color: colors.background, fontWeight: "700" },
   allDone: { color: colors.textSecondary, marginBottom: spacing.lg },
+  passwordInput: {
+    color: colors.textPrimary,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+    fontSize: 16,
+    marginBottom: spacing.md,
+  },
   primaryButton: {
     backgroundColor: colors.accent,
     borderRadius: radius.pill,
