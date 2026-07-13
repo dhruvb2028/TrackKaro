@@ -104,6 +104,9 @@ export default function ExpenseDetailScreen({ route, navigation }: Props) {
             key={cat}
             onPress={() => setCategory(cat)}
             style={[styles.categoryPill, category === cat && styles.categoryPillActive]}
+            accessibilityRole="button"
+            accessibilityState={{ selected: category === cat }}
+            accessibilityLabel={`Category: ${CATEGORY_LABELS[cat]}`}
           >
             <Text
               style={[styles.categoryPillText, category === cat && styles.categoryPillTextActive]}
@@ -121,6 +124,7 @@ export default function ExpenseDetailScreen({ route, navigation }: Props) {
         placeholderTextColor={colors.textSecondary}
         value={date}
         onChangeText={setDate}
+        accessibilityLabel="Date, format year-month-day"
       />
 
       <Text style={styles.label}>Note</Text>
@@ -130,17 +134,26 @@ export default function ExpenseDetailScreen({ route, navigation }: Props) {
         placeholderTextColor={colors.textSecondary}
         value={note}
         onChangeText={setNote}
+        accessibilityLabel="Note"
       />
 
       <Pressable
         style={[styles.saveButton, Number(amount) <= 0 && styles.buttonDisabled]}
         onPress={handleSave}
         disabled={Number(amount) <= 0}
+        accessibilityRole="button"
+        accessibilityLabel="Save changes"
+        accessibilityState={{ disabled: Number(amount) <= 0 }}
       >
         <Text style={styles.saveButtonText}>Save changes</Text>
       </Pressable>
 
-      <Pressable style={styles.deleteButton} onPress={handleDelete}>
+      <Pressable
+        style={styles.deleteButton}
+        onPress={handleDelete}
+        accessibilityRole="button"
+        accessibilityLabel="Delete expense"
+      >
         <Text style={styles.deleteButtonText}>Delete expense</Text>
       </Pressable>
     </ScrollView>

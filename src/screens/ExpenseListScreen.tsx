@@ -14,6 +14,7 @@ import { container } from "../adapters/container";
 import { getActiveUserId } from "../domain/identity";
 import { CATEGORY_LABELS, ALL_CATEGORIES } from "../domain/categoryLabels";
 import { setExpenseCategory } from "../domain/addExpense";
+import { formatINR } from "../domain/formatCurrency";
 import { prefs } from "../domain/prefs";
 import { colors, spacing, radius } from "../theme";
 import type { RootStackParamList } from "../navigation/RootNavigator";
@@ -65,27 +66,52 @@ export default function ExpenseListScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.headerBar}>
-        <Pressable style={styles.header} onPress={() => navigation.navigate("SpendSummary")}>
+        <Pressable
+          style={styles.header}
+          onPress={() => navigation.navigate("SpendSummary")}
+          accessibilityRole="button"
+          accessibilityLabel={`This month, ${formatINR(monthTotal)}. View spending breakdown`}
+        >
           <Text style={styles.headerLabel}>This month ›</Text>
-          <Text style={styles.headerAmount}>₹{monthTotal.toFixed(0)}</Text>
+          <Text style={styles.headerAmount}>{formatINR(monthTotal)}</Text>
         </Pressable>
         <View style={styles.headerActions}>
-          <Pressable style={styles.payButton} onPress={() => navigation.navigate("Pay")}>
+          <Pressable
+            style={styles.payButton}
+            onPress={() => navigation.navigate("Pay")}
+            accessibilityRole="button"
+            accessibilityLabel="Pay via UPI"
+          >
             <Text style={styles.payButtonText}>Pay</Text>
           </Pressable>
-          <Pressable style={styles.settingsButton} onPress={() => navigation.navigate("Settings")}>
+          <Pressable
+            style={styles.settingsButton}
+            onPress={() => navigation.navigate("Settings")}
+            accessibilityRole="button"
+            accessibilityLabel="Settings"
+          >
             <Text style={styles.settingsIcon}>⚙︎</Text>
           </Pressable>
         </View>
       </View>
 
       {showNudge && (
-        <Pressable style={styles.nudge} onPress={() => navigation.navigate("SignUp")}>
+        <Pressable
+          style={styles.nudge}
+          onPress={() => navigation.navigate("SignUp")}
+          accessibilityRole="button"
+          accessibilityLabel="Back up your data. Sign up to keep it safe on any device"
+        >
           <View style={styles.nudgeText}>
             <Text style={styles.nudgeTitle}>Back up your data</Text>
             <Text style={styles.nudgeSubtitle}>Sign up to keep it safe on any device.</Text>
           </View>
-          <Pressable hitSlop={8} onPress={dismissNudge}>
+          <Pressable
+            hitSlop={8}
+            onPress={dismissNudge}
+            accessibilityRole="button"
+            accessibilityLabel="Dismiss backup reminder"
+          >
             <Text style={styles.nudgeClose}>✕</Text>
           </Pressable>
         </Pressable>
@@ -108,15 +134,20 @@ export default function ExpenseListScreen({ navigation }: Props) {
               <Pressable
                 style={styles.rowLeft}
                 onPress={() => navigation.navigate("ExpenseDetail", { expenseId: item.id })}
+                accessibilityRole="button"
+                accessibilityLabel={`${item.merchant ?? "Expense"}, ${formatINR(item.amount)}, ${item.date}`}
+                accessibilityHint="Opens expense details to edit or delete"
               >
                 <Text style={styles.merchant}>{item.merchant ?? "Expense"}</Text>
                 <Text style={styles.date}>{item.date}</Text>
               </Pressable>
               <View style={styles.rowRight}>
-                <Text style={styles.amount}>₹{item.amount.toFixed(0)}</Text>
+                <Text style={styles.amount}>{formatINR(item.amount)}</Text>
                 <Pressable
                   onPress={() => setCategoryPickerFor(item)}
                   style={styles.categoryChip}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Category: ${CATEGORY_LABELS[item.category]}. Change`}
                 >
                   <Text style={styles.categoryChipText}>
                     {CATEGORY_LABELS[item.category]}
@@ -129,7 +160,11 @@ export default function ExpenseListScreen({ navigation }: Props) {
       )}
 
       {categoryPickerFor && (
-        <View style={styles.pickerOverlay}>
+        <View
+          style={styles.pickerOverlay}
+          accessibilityViewIsModal
+          accessibilityRole="menu"
+        >
           <View style={styles.pickerCard}>
             <Text style={styles.pickerTitle}>Set category</Text>
             {ALL_CATEGORIES.map((cat) => (
@@ -137,11 +172,17 @@ export default function ExpenseListScreen({ navigation }: Props) {
                 key={cat}
                 style={styles.pickerOption}
                 onPress={() => handlePickCategory(cat)}
+                accessibilityRole="menuitem"
+                accessibilityLabel={CATEGORY_LABELS[cat]}
               >
                 <Text style={styles.pickerOptionText}>{CATEGORY_LABELS[cat]}</Text>
               </Pressable>
             ))}
-            <Pressable onPress={() => setCategoryPickerFor(null)}>
+            <Pressable
+              onPress={() => setCategoryPickerFor(null)}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel"
+            >
               <Text style={styles.pickerCancel}>Cancel</Text>
             </Pressable>
           </View>
@@ -151,6 +192,8 @@ export default function ExpenseListScreen({ navigation }: Props) {
       <Pressable
         style={styles.fab}
         onPress={() => navigation.navigate("AddExpense")}
+        accessibilityRole="button"
+        accessibilityLabel="Add expense"
       >
         <Text style={styles.fabIcon}>＋</Text>
       </Pressable>

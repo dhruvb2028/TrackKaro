@@ -19,6 +19,7 @@ import { getActiveUserId } from "../domain/identity";
 import { buildUpiUri, isValidVpa } from "../domain/upi";
 import { addExpense } from "../domain/addExpense";
 import { categorize } from "../domain/categorize";
+import { formatINR } from "../domain/formatCurrency";
 import { newId } from "../domain/id";
 import { Payee } from "../domain/models";
 
@@ -138,6 +139,8 @@ export default function PayScreen({ navigation }: Props) {
                   setVpa(p.vpa);
                   setPayeeName(p.displayName);
                 }}
+                accessibilityRole="button"
+                accessibilityLabel={`Pay ${p.displayName}`}
               >
                 <Text style={styles.payeeChipText}>{p.displayName}</Text>
               </Pressable>
@@ -154,9 +157,10 @@ export default function PayScreen({ navigation }: Props) {
         autoCapitalize="none"
         value={vpa}
         onChangeText={setVpa}
+        accessibilityLabel="Pay to UPI ID"
       />
       {vpa.length > 0 && !isValidVpa(vpa) && (
-        <Text style={styles.hint}>Enter a valid UPI ID, e.g. name@okhdfc</Text>
+        <Text style={styles.hint} accessibilityRole="alert">Enter a valid UPI ID, e.g. name@okhdfc</Text>
       )}
 
       <Text style={styles.label}>Payee name</Text>
@@ -166,6 +170,7 @@ export default function PayScreen({ navigation }: Props) {
         placeholderTextColor={colors.textSecondary}
         value={payeeName}
         onChangeText={setPayeeName}
+        accessibilityLabel="Payee name"
       />
 
       <Text style={styles.label}>Amount</Text>
@@ -176,6 +181,7 @@ export default function PayScreen({ navigation }: Props) {
         placeholderTextColor={colors.textSecondary}
         value={amount}
         onChangeText={setAmount}
+        accessibilityLabel="Amount in rupees"
       />
 
       <Text style={styles.label}>Note (optional)</Text>
@@ -185,30 +191,44 @@ export default function PayScreen({ navigation }: Props) {
         placeholderTextColor={colors.textSecondary}
         value={note}
         onChangeText={setNote}
+        accessibilityLabel="Note"
       />
 
       <Pressable
         style={[styles.payButton, !canPay && styles.buttonDisabled]}
         onPress={handlePay}
         disabled={!canPay}
+        accessibilityRole="button"
+        accessibilityLabel={`Pay ${formatINR(Number(amount) > 0 ? Number(amount) : 0)} via UPI`}
+        accessibilityState={{ disabled: !canPay }}
       >
-        <Text style={styles.payButtonText}>Pay ₹{Number(amount) > 0 ? Number(amount).toFixed(0) : "0"}</Text>
+        <Text style={styles.payButtonText}>Pay {formatINR(Number(amount) > 0 ? Number(amount) : 0)}</Text>
       </Pressable>
 
       {showNudge && pending && (
-        <View style={styles.nudgeOverlay}>
+        <View style={styles.nudgeOverlay} accessibilityViewIsModal>
           <View style={styles.nudgeCard}>
             <Text style={styles.nudgeTitle}>
-              Mark ₹{pending.amount.toFixed(0)} to {pending.payeeName} as paid?
+              Mark {formatINR(pending.amount)} to {pending.payeeName} as paid?
             </Text>
             <Text style={styles.nudgeSubtitle}>
               Only if the payment went through. You can skip this.
             </Text>
             <View style={styles.nudgeActions}>
-              <Pressable style={styles.nudgeSkip} onPress={dismissNudge}>
+              <Pressable
+                style={styles.nudgeSkip}
+                onPress={dismissNudge}
+                accessibilityRole="button"
+                accessibilityLabel="Not now, don't log this payment"
+              >
                 <Text style={styles.nudgeSkipText}>Not now</Text>
               </Pressable>
-              <Pressable style={styles.nudgeConfirm} onPress={confirmPaid}>
+              <Pressable
+                style={styles.nudgeConfirm}
+                onPress={confirmPaid}
+                accessibilityRole="button"
+                accessibilityLabel="Yes, log this payment as an expense"
+              >
                 <Text style={styles.nudgeConfirmText}>Yes, log it</Text>
               </Pressable>
             </View>

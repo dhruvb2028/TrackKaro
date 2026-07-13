@@ -14,6 +14,8 @@ export default function AddExpenseScreen({ navigation }: Props) {
       <Pressable
         style={styles.option}
         onPress={() => navigation.navigate("PhotoCapture")}
+        accessibilityRole="button"
+        accessibilityLabel="Snap a bill. We'll read the details for you"
       >
         <Text style={styles.optionIcon}>📷</Text>
         <View>
@@ -25,6 +27,8 @@ export default function AddExpenseScreen({ navigation }: Props) {
       <Pressable
         style={styles.option}
         onPress={() => navigation.navigate("ManualQuickAdd")}
+        accessibilityRole="button"
+        accessibilityLabel="Quick add. Just an amount and category"
       >
         <Text style={styles.optionIcon}>✏️</Text>
         <View>
@@ -36,6 +40,8 @@ export default function AddExpenseScreen({ navigation }: Props) {
       <Pressable
         style={styles.option}
         onPress={() => navigation.navigate("StatementImport")}
+        accessibilityRole="button"
+        accessibilityLabel="Upload statement. Import from a bank or UPI statement"
       >
         <Text style={styles.optionIcon}>📄</Text>
         <View>

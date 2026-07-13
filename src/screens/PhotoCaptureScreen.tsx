@@ -108,7 +108,7 @@ export default function PhotoCaptureScreen({ navigation }: Props) {
       {imageUri && <Image source={{ uri: imageUri }} style={styles.thumbnail} />}
 
       {rateLimited && (
-        <Text style={styles.rateLimitNotice}>
+        <Text style={styles.rateLimitNotice} accessibilityRole="alert">
           We couldn't auto-read this one right now — fill it in below.
         </Text>
       )}
@@ -121,6 +121,7 @@ export default function PhotoCaptureScreen({ navigation }: Props) {
         placeholderTextColor={colors.textSecondary}
         value={amount}
         onChangeText={setAmount}
+        accessibilityLabel="Amount in rupees"
       />
 
       <Text style={styles.label}>Merchant (optional)</Text>
@@ -130,6 +131,7 @@ export default function PhotoCaptureScreen({ navigation }: Props) {
         placeholderTextColor={colors.textSecondary}
         value={merchant}
         onChangeText={setMerchant}
+        accessibilityLabel="Merchant"
       />
 
       <Text style={styles.label}>Category</Text>
@@ -139,6 +141,9 @@ export default function PhotoCaptureScreen({ navigation }: Props) {
             key={cat}
             onPress={() => setCategory(cat)}
             style={[styles.categoryPill, category === cat && styles.categoryPillActive]}
+            accessibilityRole="button"
+            accessibilityState={{ selected: category === cat }}
+            accessibilityLabel={`Category: ${CATEGORY_LABELS[cat]}`}
           >
             <Text
               style={[
@@ -156,6 +161,9 @@ export default function PhotoCaptureScreen({ navigation }: Props) {
         style={[styles.saveButton, (Number(amount) <= 0 || stage === "saving") && styles.saveButtonDisabled]}
         onPress={handleSave}
         disabled={Number(amount) <= 0 || stage === "saving"}
+        accessibilityRole="button"
+        accessibilityLabel={stage === "saving" ? "Saving expense" : "Confirm expense"}
+        accessibilityState={{ disabled: Number(amount) <= 0 || stage === "saving", busy: stage === "saving" }}
       >
         <Text style={styles.saveButtonText}>{stage === "saving" ? "Saving…" : "Confirm"}</Text>
       </Pressable>

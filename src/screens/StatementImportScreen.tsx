@@ -17,6 +17,7 @@ import { getActiveUserId } from "../domain/identity";
 import { importStatement, ImportSummary, ReviewItem } from "../domain/statementImport";
 import { addExpense } from "../domain/addExpense";
 import { categorize } from "../domain/categorize";
+import { formatINR } from "../domain/formatCurrency";
 
 type Props = NativeStackScreenProps<RootStackParamList, "StatementImport">;
 type Stage = "idle" | "picking" | "password" | "parsing" | "summary";
@@ -138,12 +139,18 @@ export default function StatementImportScreen({ navigation }: Props) {
             setTriedWrongPassword(false);
           }}
           autoFocus
+          accessibilityLabel="Statement password"
         />
-        {triedWrongPassword && <Text style={styles.error}>That password didn't work.</Text>}
+        {triedWrongPassword && (
+          <Text style={styles.error} accessibilityRole="alert">That password didn't work.</Text>
+        )}
         <Pressable
           style={[styles.primaryButton, !password && styles.buttonDisabled]}
           disabled={!password}
           onPress={() => file && runParse(file, password)}
+          accessibilityRole="button"
+          accessibilityLabel="Unlock statement"
+          accessibilityState={{ disabled: !password }}
         >
           <Text style={styles.primaryButtonText}>Unlock</Text>
         </Pressable>
@@ -173,14 +180,24 @@ export default function StatementImportScreen({ navigation }: Props) {
                   {item.merchantSignal ?? item.transaction.narration}
                 </Text>
                 <Text style={styles.reviewMeta}>
-                  ₹{item.transaction.amount.toFixed(0)} · {item.transaction.date} ·{" "}
+                  {formatINR(item.transaction.amount)} · {item.transaction.date} ·{" "}
                   {item.reason === "possible_duplicate" ? "Possible duplicate" : "Transfer"}
                 </Text>
                 <View style={styles.reviewActions}>
-                  <Pressable style={styles.skipButton} onPress={() => resolveReview(item, false)}>
+                  <Pressable
+                    style={styles.skipButton}
+                    onPress={() => resolveReview(item, false)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Skip ${formatINR(item.transaction.amount)} transaction`}
+                  >
                     <Text style={styles.skipButtonText}>Skip</Text>
                   </Pressable>
-                  <Pressable style={styles.keepButton} onPress={() => resolveReview(item, true)}>
+                  <Pressable
+                    style={styles.keepButton}
+                    onPress={() => resolveReview(item, true)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Add ${formatINR(item.transaction.amount)} transaction`}
+                  >
                     <Text style={styles.keepButtonText}>Add</Text>
                   </Pressable>
                 </View>
@@ -191,7 +208,12 @@ export default function StatementImportScreen({ navigation }: Props) {
           <Text style={styles.allDone}>All set — nothing left to review.</Text>
         )}
 
-        <Pressable style={styles.primaryButton} onPress={() => navigation.popTo("ExpenseList")}>
+        <Pressable
+          style={styles.primaryButton}
+          onPress={() => navigation.popTo("ExpenseList")}
+          accessibilityRole="button"
+          accessibilityLabel="Done, back to expenses"
+        >
           <Text style={styles.primaryButtonText}>Done</Text>
         </Pressable>
       </ScrollView>
@@ -204,8 +226,13 @@ export default function StatementImportScreen({ navigation }: Props) {
       <Text style={styles.subtitle}>
         PDF, CSV or Excel from your bank or UPI app. We'll add the transactions for you.
       </Text>
-      {error && <Text style={styles.error}>{error}</Text>}
-      <Pressable style={styles.primaryButton} onPress={pickFile}>
+      {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
+      <Pressable
+        style={styles.primaryButton}
+        onPress={pickFile}
+        accessibilityRole="button"
+        accessibilityLabel="Choose a statement file"
+      >
         <Text style={styles.primaryButtonText}>Choose file</Text>
       </Pressable>
     </View>

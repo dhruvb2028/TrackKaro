@@ -61,6 +61,9 @@ export default function ManualQuickAddScreen({ navigation }: Props) {
             key={cat}
             onPress={() => setCategory(cat)}
             style={[styles.categoryPill, category === cat && styles.categoryPillActive]}
+            accessibilityRole="button"
+            accessibilityState={{ selected: category === cat }}
+            accessibilityLabel={`Category: ${CATEGORY_LABELS[cat]}`}
           >
             <Text
               style={[
@@ -81,12 +84,16 @@ export default function ManualQuickAddScreen({ navigation }: Props) {
         placeholderTextColor={colors.textSecondary}
         value={note}
         onChangeText={setNote}
+        accessibilityLabel="Note"
       />
 
       <Pressable
         style={[styles.saveButton, !canSave && styles.saveButtonDisabled]}
         onPress={handleSave}
         disabled={!canSave}
+        accessibilityRole="button"
+        accessibilityLabel="Save expense"
+        accessibilityState={{ disabled: !canSave }}
       >
         <Text style={styles.saveButtonText}>Save</Text>
       </Pressable>

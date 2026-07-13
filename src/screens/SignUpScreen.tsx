@@ -87,12 +87,16 @@ export default function SignUpScreen({ navigation }: Props) {
             value={email}
             onChangeText={setEmail}
             autoFocus
+            accessibilityLabel="Email address"
           />
-          {error && <Text style={styles.error}>{error}</Text>}
+          {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
           <Pressable
             style={[styles.button, !EMAIL_PATTERN.test(email.trim()) && styles.buttonDisabled]}
             disabled={!EMAIL_PATTERN.test(email.trim())}
             onPress={sendOtp}
+            accessibilityRole="button"
+            accessibilityLabel="Send verification code"
+            accessibilityState={{ disabled: !EMAIL_PATTERN.test(email.trim()) }}
           >
             <Text style={styles.buttonText}>Send code</Text>
           </Pressable>
@@ -108,12 +112,16 @@ export default function SignUpScreen({ navigation }: Props) {
             value={code}
             onChangeText={setCode}
             autoFocus
+            accessibilityLabel="6-digit verification code"
           />
-          {error && <Text style={styles.error}>{error}</Text>}
+          {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
           <Pressable
             style={[styles.button, code.trim().length < 6 && styles.buttonDisabled]}
             disabled={code.trim().length < 6}
             onPress={verify}
+            accessibilityRole="button"
+            accessibilityLabel="Verify code and sign up"
+            accessibilityState={{ disabled: code.trim().length < 6 }}
           >
             <Text style={styles.buttonText}>Verify</Text>
           </Pressable>

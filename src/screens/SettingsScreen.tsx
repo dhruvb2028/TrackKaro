@@ -33,7 +33,12 @@ export default function SettingsScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       {!signedUp && (
-        <Pressable style={styles.card} onPress={() => navigation.navigate("SignUp")}>
+        <Pressable
+          style={styles.card}
+          onPress={() => navigation.navigate("SignUp")}
+          accessibilityRole="button"
+          accessibilityLabel="Back up your data. Sign up with your email to keep your data safe"
+        >
           <Text style={styles.cardTitle}>Back up your data</Text>
           <Text style={styles.cardSubtitle}>
             Sign up with your email to keep your data safe.
@@ -41,7 +46,14 @@ export default function SettingsScreen({ navigation }: Props) {
         </Pressable>
       )}
 
-      <Pressable style={styles.card} onPress={handleExport} disabled={exporting}>
+      <Pressable
+        style={styles.card}
+        onPress={handleExport}
+        disabled={exporting}
+        accessibilityRole="button"
+        accessibilityLabel="Export my data. Save all your expenses to a file you control"
+        accessibilityState={{ disabled: exporting, busy: exporting }}
+      >
         <View style={styles.cardRow}>
           <View style={styles.cardTextGroup}>
             <Text style={styles.cardTitle}>Export my data</Text>

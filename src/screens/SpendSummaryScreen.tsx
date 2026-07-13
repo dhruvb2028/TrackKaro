@@ -7,6 +7,7 @@ import { getActiveUserId } from "../domain/identity";
 import { summarize, currentYearMonth, SpendSummary } from "../domain/spendSummary";
 import { CATEGORY_LABELS } from "../domain/categoryLabels";
 import { CATEGORY_COLORS } from "../domain/categoryColors";
+import { formatINR } from "../domain/formatCurrency";
 import { colors, spacing, radius } from "../theme";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
@@ -32,7 +33,7 @@ export default function SpendSummaryScreen(_props: Props) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.label}>This month</Text>
-      <Text style={styles.total}>₹{summary.monthTotal.toFixed(0)}</Text>
+      <Text style={styles.total}>{formatINR(summary.monthTotal)}</Text>
 
       {summary.byCategory.length === 0 ? (
         <Text style={styles.empty}>No spending yet this month.</Text>
@@ -47,7 +48,7 @@ export default function SpendSummaryScreen(_props: Props) {
                   />
                   <Text style={styles.rowLabel}>{CATEGORY_LABELS[row.category]}</Text>
                 </View>
-                <Text style={styles.rowAmount}>₹{row.total.toFixed(0)}</Text>
+                <Text style={styles.rowAmount}>{formatINR(row.total)}</Text>
               </View>
               <View style={styles.track}>
                 <View
