@@ -1,9 +1,9 @@
 import { File } from "expo-file-system";
 import * as XLSX from "xlsx";
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { StatementParser, StatementParseResult } from "../../ports/StatementParser";
 import { parseCsv, detectColumns, rowsToTransactions } from "../../domain/statementCsv";
 import { reconstructRows, PdfTextItem } from "../../domain/statementPdfLayout";
+import { installPdfHermesPolyfills } from "./pdfHermesPolyfills";
 
 function isPdf(mimeType: string | null, fileName: string): boolean {
   return mimeType === "application/pdf" || fileName.toLowerCase().endsWith(".pdf");
@@ -30,15 +30,19 @@ function rowsFromWorkbook(bytes: Uint8Array): string[][] {
 /**
  * Extracts rows from every page of a PDF. Throws pdf.js's own
  * PasswordException (name === "PasswordException") when a password is
- * missing or wrong — callers distinguish that from other failures. No
- * worker is configured, and pdf.js falls back to parsing on the calling
- * thread automatically in environments with no Worker global — verified
- * against real password-protected and plain PDFs in a plain Node.js
- * environment (no DOM/worker); see CLAUDE.md for the verification notes
- * and the one thing that verification couldn't rule out (native/Hermes
- * behavior, untested — no device/emulator available in this environment).
+ * missing or wrong — callers distinguish that from other failures.
+ *
+ * pdfjs-dist is imported lazily (dynamic import), for two reasons: it keeps
+ * the ~1MB library out of the app-startup path (only CSV/Excel users never
+ * pay for it), and — critically — pdf.js references DOM globals Hermes lacks
+ * at module-eval time, so importing it eagerly crashes the whole app on
+ * device. installPdfHermesPolyfills() runs first to stub those globals; see
+ * pdfHermesPolyfills.ts. No worker is configured — pdf.js parses on the
+ * calling thread when no Worker global exists.
  */
 async function rowsFromPdf(bytes: Uint8Array, password?: string): Promise<string[][]> {
+  installPdfHermesPolyfills();
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const doc = await getDocument({ data: bytes, password }).promise;
   const allRows: string[][] = [];
 
