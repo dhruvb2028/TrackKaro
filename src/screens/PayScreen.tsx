@@ -11,15 +11,15 @@ import {
   AppStateStatus,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import * as Crypto from "expo-crypto";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import { colors, spacing, radius } from "../theme";
 import { container } from "../adapters/container";
-import { getGuestUserId } from "../domain/identity";
+import { getActiveUserId } from "../domain/identity";
 import { buildUpiUri, isValidVpa } from "../domain/upi";
 import { addExpense } from "../domain/addExpense";
 import { categorize } from "../domain/categorize";
+import { newId } from "../domain/id";
 import { Payee } from "../domain/models";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Pay">;
@@ -42,7 +42,7 @@ export default function PayScreen({ navigation }: Props) {
   const launchedRef = useRef(false);
 
   const loadPayees = useCallback(async () => {
-    const uid = await getGuestUserId();
+    const uid = await getActiveUserId();
     setPayees(await container.payeeRepository.listForUser(uid));
   }, []);
 
@@ -75,10 +75,10 @@ export default function PayScreen({ navigation }: Props) {
       note: note || null,
     };
 
-    const uid = await getGuestUserId();
+    const uid = await getActiveUserId();
     const existing = await container.payeeRepository.getByVpa(uid, req.vpa);
     const payee: Payee = existing ?? {
-      id: await newId(),
+      id: newId(),
       userId: uid,
       vpa: req.vpa,
       displayName: req.payeeName,
@@ -98,7 +98,7 @@ export default function PayScreen({ navigation }: Props) {
 
   const confirmPaid = async () => {
     if (!pending) return;
-    const uid = await getGuestUserId();
+    const uid = await getActiveUserId();
     const { category } = await categorize(
       uid,
       pending.payeeName,
@@ -217,13 +217,6 @@ export default function PayScreen({ navigation }: Props) {
       )}
     </ScrollView>
   );
-}
-
-async function newId(): Promise<string> {
-  const bytes = await Crypto.getRandomBytesAsync(16);
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
 }
 
 const styles = StyleSheet.create({

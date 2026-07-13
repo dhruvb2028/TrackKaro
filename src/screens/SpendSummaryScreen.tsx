@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { container } from "../adapters/container";
-import { getGuestUserId } from "../domain/identity";
+import { getActiveUserId } from "../domain/identity";
 import { summarize, currentYearMonth, SpendSummary } from "../domain/spendSummary";
 import { CATEGORY_LABELS } from "../domain/categoryLabels";
 import { CATEGORY_COLORS } from "../domain/categoryColors";
@@ -18,7 +18,7 @@ export default function SpendSummaryScreen(_props: Props) {
   const [summary, setSummary] = useState<SpendSummary>(EMPTY);
 
   const load = useCallback(async () => {
-    const uid = await getGuestUserId();
+    const uid = await getActiveUserId();
     const expenses = await container.expenseRepository.listForMonth(uid, currentYearMonth());
     setSummary(summarize(expenses));
   }, []);

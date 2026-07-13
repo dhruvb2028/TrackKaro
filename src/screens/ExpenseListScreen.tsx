@@ -11,7 +11,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Expense } from "../domain/models";
 import { container } from "../adapters/container";
-import { getGuestUserId } from "../domain/identity";
+import { getActiveUserId } from "../domain/identity";
 import { CATEGORY_LABELS, ALL_CATEGORIES } from "../domain/categoryLabels";
 import { setExpenseCategory } from "../domain/addExpense";
 import { prefs } from "../domain/prefs";
@@ -27,7 +27,7 @@ export default function ExpenseListScreen({ navigation }: Props) {
   const [showNudge, setShowNudge] = useState(false);
 
   const load = useCallback(async () => {
-    const uid = await getGuestUserId();
+    const uid = await getActiveUserId();
     setUserId(uid);
     const list = await container.expenseRepository.listForUser(uid);
     setExpenses(list);

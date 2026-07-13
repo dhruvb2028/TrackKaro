@@ -14,7 +14,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import { colors, spacing, radius } from "../theme";
 import { container } from "../adapters/container";
-import { getDeviceId, getGuestUserId } from "../domain/identity";
+import { getDeviceId, getActiveUserId } from "../domain/identity";
 import { addExpense } from "../domain/addExpense";
 import { ALL_CATEGORIES, CATEGORY_LABELS } from "../domain/categoryLabels";
 import { ExpenseCategory } from "../domain/models";
@@ -68,8 +68,11 @@ export default function PhotoCaptureScreen({ navigation }: Props) {
   const handleSave = async () => {
     if (Number(amount) <= 0) return;
     setStage("saving");
-    const userId = await getGuestUserId();
-    const key = `${Date.now()}.jpg`;
+    const userId = await getActiveUserId();
+    // Storage RLS requires the first path segment to be auth.uid() (see the
+    // migration's receipts_owner_all policy) — this key format is required
+    // for signed-in uploads to succeed, not just a naming convention.
+    const key = `${userId}/${Date.now()}.jpg`;
     const storedUri = imageUri ? await container.fileStorage.upload(imageUri, key) : null;
     await addExpense({
       userId,

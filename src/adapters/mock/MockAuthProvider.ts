@@ -43,6 +43,13 @@ export class MockAuthProvider implements AuthProvider {
   async revokeSession(_userId: string): Promise<void> {
     // No server-side session to revoke yet; a real adapter would invalidate refresh tokens here.
   }
+
+  async getCurrentUserId(): Promise<string | null> {
+    // The mock never persists a session — "signed up" locally is tracked
+    // separately by prefs.isSignedUp() purely for UI, and guests always
+    // keep using their device id (see identity.ts / migrateGuestData.ts).
+    return null;
+  }
 }
 
 async function hash(value: string): Promise<string> {

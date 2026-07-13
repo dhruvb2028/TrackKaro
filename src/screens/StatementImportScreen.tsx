@@ -13,7 +13,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import { colors, spacing, radius } from "../theme";
 import { container } from "../adapters/container";
-import { getGuestUserId } from "../domain/identity";
+import { getActiveUserId } from "../domain/identity";
 import { importStatement, ImportSummary, ReviewItem } from "../domain/statementImport";
 import { addExpense } from "../domain/addExpense";
 import { categorize } from "../domain/categorize";
@@ -77,7 +77,7 @@ export default function StatementImportScreen({ navigation }: Props) {
       return;
     }
 
-    const userId = await getGuestUserId();
+    const userId = await getActiveUserId();
     const result = await importStatement(userId, parseResult.transactions);
     setSummary(result);
     setReviewQueue(result.needsReview);
@@ -86,7 +86,7 @@ export default function StatementImportScreen({ navigation }: Props) {
 
   const resolveReview = async (item: ReviewItem, keep: boolean) => {
     if (keep) {
-      const userId = await getGuestUserId();
+      const userId = await getActiveUserId();
       const { category } = await categorize(
         userId,
         item.merchantSignal,

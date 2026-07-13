@@ -4,7 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import { colors, spacing, radius } from "../theme";
-import { getGuestUserId } from "../domain/identity";
+import { getActiveUserId } from "../domain/identity";
 import { exportUserData } from "../domain/exportData";
 import { prefs } from "../domain/prefs";
 
@@ -23,7 +23,7 @@ export default function SettingsScreen({ navigation }: Props) {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const uid = await getGuestUserId();
+      const uid = await getActiveUserId();
       await exportUserData(uid);
     } finally {
       setExporting(false);

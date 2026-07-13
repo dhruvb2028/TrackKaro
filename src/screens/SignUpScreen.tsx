@@ -11,7 +11,10 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import { colors, spacing, radius } from "../theme";
 import { container } from "../adapters/container";
+import { isSupabaseConfigured } from "../adapters/real/supabaseClient";
 import { prefs } from "../domain/prefs";
+import { getGuestUserId } from "../domain/identity";
+import { migrateGuestData } from "../domain/migrateGuestData";
 
 type Props = NativeStackScreenProps<RootStackParamList, "SignUp">;
 type Stage = "phone" | "otp" | "working";
@@ -38,9 +41,14 @@ export default function SignUpScreen({ navigation }: Props) {
     setError(null);
     setStage("working");
     try {
-      await container.authProvider.verifyOtp(phone.trim(), code.trim());
-      // Guest data already lives locally under the device's guest id; a real
-      // backend adapter would migrate it into the new account here.
+      const guestUserId = await getGuestUserId();
+      const session = await container.authProvider.verifyOtp(phone.trim(), code.trim());
+      // Only a real backend has a distinct account to migrate into — with
+      // the mock provider, "signed up" is still the same local storage
+      // under the same guest id, so there's nothing to move.
+      if (isSupabaseConfigured()) {
+        await migrateGuestData(guestUserId, session.userId);
+      }
       await prefs.setSignedUp();
       navigation.goBack();
     } catch (e: any) {

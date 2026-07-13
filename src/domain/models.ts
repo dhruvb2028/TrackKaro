@@ -20,7 +20,7 @@ export interface Expense {
   note: string | null;
   date: string; // ISO date
   source: ExpenseSource;
-  receiptImageUri: string | null;
+  receiptImageUri: string | null; // FileStorage reference — resolve via FileStorage.getUrl() before rendering, never use directly
   referenceNumber: string | null;
   createdAt: string;
   updatedAt: string;

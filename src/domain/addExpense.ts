@@ -1,7 +1,7 @@
-import * as Crypto from "expo-crypto";
 import { Expense, ExpenseCategory, ExpenseSource } from "./models";
 import { container } from "../adapters/container";
 import { categorize } from "./categorize";
+import { newId } from "./id";
 
 export interface AddExpenseInput {
   userId: string;
@@ -12,13 +12,6 @@ export interface AddExpenseInput {
   date?: string;
   source: ExpenseSource;
   receiptImageUri?: string | null;
-}
-
-async function newId(): Promise<string> {
-  const bytes = await Crypto.getRandomBytesAsync(16);
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
 }
 
 export async function addExpense(input: AddExpenseInput): Promise<Expense> {
@@ -37,7 +30,7 @@ export async function addExpense(input: AddExpenseInput): Promise<Expense> {
   }
 
   const expense: Expense = {
-    id: await newId(),
+    id: newId(),
     userId: input.userId,
     amount: input.amount,
     currency: "INR",

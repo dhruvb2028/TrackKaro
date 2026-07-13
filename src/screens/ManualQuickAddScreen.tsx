@@ -13,7 +13,7 @@ import { colors, spacing, radius } from "../theme";
 import { ALL_CATEGORIES, CATEGORY_LABELS } from "../domain/categoryLabels";
 import { ExpenseCategory } from "../domain/models";
 import { addExpense } from "../domain/addExpense";
-import { getGuestUserId } from "../domain/identity";
+import { getActiveUserId } from "../domain/identity";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ManualQuickAdd">;
 
@@ -28,7 +28,7 @@ export default function ManualQuickAddScreen({ navigation }: Props) {
   const handleSave = async () => {
     if (!canSave) return;
     setSaving(true);
-    const userId = await getGuestUserId();
+    const userId = await getActiveUserId();
     await addExpense({
       userId,
       amount: Number(amount),

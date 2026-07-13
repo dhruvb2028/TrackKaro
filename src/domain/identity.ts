@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import * as Crypto from "expo-crypto";
+import { container } from "../adapters/container";
 
 const DEVICE_ID_KEY = "trackkaro_device_id";
 const GUEST_USER_ID_KEY = "trackkaro_guest_user_id";
@@ -26,4 +27,16 @@ export function getDeviceId(): Promise<string> {
  */
 export function getGuestUserId(): Promise<string> {
   return getOrCreate(GUEST_USER_ID_KEY);
+}
+
+/**
+ * The id every screen should read/write data under: the real signed-in
+ * user's id once one exists, else the local guest id. This is what makes
+ * the routing adapters (RoutingExpenseRepository etc.) actually work end
+ * to end — querying with the stale guest id after sign-up would return
+ * nothing, since Supabase's RLS scopes rows to auth.uid().
+ */
+export async function getActiveUserId(): Promise<string> {
+  const currentUserId = await container.authProvider.getCurrentUserId();
+  return currentUserId ?? getGuestUserId();
 }

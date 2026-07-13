@@ -13,7 +13,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import { colors, spacing, radius } from "../theme";
 import { container } from "../adapters/container";
-import { getGuestUserId } from "../domain/identity";
+import { getActiveUserId } from "../domain/identity";
 import { Expense, ExpenseCategory } from "../domain/models";
 import { ALL_CATEGORIES, CATEGORY_LABELS } from "../domain/categoryLabels";
 import { updateExpense, deleteExpense } from "../domain/addExpense";
@@ -31,7 +31,7 @@ export default function ExpenseDetailScreen({ route, navigation }: Props) {
 
   useEffect(() => {
     (async () => {
-      const uid = await getGuestUserId();
+      const uid = await getActiveUserId();
       const e = await container.expenseRepository.getById(expenseId, uid);
       if (!e) {
         navigation.goBack();
