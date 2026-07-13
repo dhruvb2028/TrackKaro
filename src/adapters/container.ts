@@ -4,7 +4,7 @@ import { MockAuthProvider } from "./mock/MockAuthProvider";
 import { LocalFileStorage } from "./mock/LocalFileStorage";
 import { MockAIExtractor } from "./mock/MockAIExtractor";
 import { LocalRateLimiter } from "./mock/LocalRateLimiter";
-import { MockStatementParser } from "./mock/MockStatementParser";
+import { RealStatementParser } from "./real/RealStatementParser";
 import { LocalPayeeRepository } from "./mock/LocalPayeeRepository";
 import { AIExtractor } from "../ports/AIExtractor";
 import { AuthProvider } from "../ports/AuthProvider";
@@ -79,7 +79,11 @@ export const container = {
   ),
   aiExtractor: makeAIExtractor(),
   rateLimiter: new LocalRateLimiter(),
-  statementParser: new MockStatementParser(),
+  // Real CSV/Excel parsing needs no external credentials, so it's never
+  // gated behind a config check the way Groq/Supabase are (PDF stays
+  // "unsupported" until real text extraction exists — see
+  // RealStatementParser's doc comment).
+  statementParser: new RealStatementParser(),
 };
 
 /** Local-only handles, for the guest-to-account migration step (see migrateGuestData.ts). */
